@@ -81,5 +81,5 @@ flycheck_*.el
 
 # data directories
 data/
-
 data/*
+data
