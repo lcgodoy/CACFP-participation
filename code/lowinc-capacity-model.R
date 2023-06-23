@@ -10,7 +10,7 @@ library(sf)
 
 inla.setOption(pardiso.license = "~/sys/licenses/pardiso.lic")
 
-my_dt <- fread("data/center_census_state_OUT_0901.csv")
+my_dt <- fread("../data/center_census_state_OUT_0901.csv")
 my_dt <- my_dt[OUT == 0]
 
 rm_vars <- names(my_dt) |>
@@ -34,7 +34,8 @@ my_dt[, `:=`(log_inc = .center_scale(log_inc),
              punder5 = .center_scale(punder5),
              SNAP    = .center_scale(SNAP),
              WIC     = .center_scale(WIC),
-             poor    = .center_scale(POOR))]
+             poor    = .center_scale(POOR),
+             USER_Capac = .center_scale(USER_Capac))]
 
 states_included <- unique(my_dt[["STATE"]])
 
@@ -222,9 +223,9 @@ my_model <- inla(f_s, family = "binomial",
                           compute = TRUE))
 
 saveRDS(exp(my_model$summary.fixed),
-        file = "data/results/cap-lowinc-model-no-states.rds")
+        file = "../data/results/cap-lowinc-model-no-states.rds")
 saveRDS(exp(my_model$summary.hyperpar),
-        file = "data/results/spatialpars-cap-lowinc-no-states.rds")
+        file = "../data/results/spatialpars-cap-lowinc-no-states.rds")
 
 fitted <- my_model$summary.linear.predictor
 
@@ -238,4 +239,4 @@ fitted <- fitted[, -c(2:3)]
 rownames(fitted) <- NULL
 
 saveRDS(fitted,
-        file = "data/results/pred-li-capacity.rds")
+        file = "../data/results/pred-li-capacity.rds")

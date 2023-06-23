@@ -1,3 +1,10 @@
+#' ---
+#' output:
+#'   reprex::reprex_document:
+#'     session_info: TRUE
+#'     style: TRUE
+#' ---
+
 library(data.table)
 library(INLA)
 library(sf)
@@ -14,14 +21,19 @@ my_dt <- fread("../data/center_census_state_OUT_0901.csv")
 my_dt <- my_dt[OUT == 0]
 
 rm_vars <- names(my_dt) |>
-    grep("^V[0-9]{2}", x = _)
+    grep("^V[0-9]{1,2}", x = _)
 
 set(my_dt, j = rm_vars, value = NULL)
 
 my_dt[, `:=`(GEOID = gsub("1400000US", "", GEO_ID),
              pwhite = as.numeric(pwhite),
              hhinc = as.numeric(hhinc))]
-my_dt <- my_dt[, log_inc := as.numeric(log(hhinc2))]
+my_dt <- my_dt[, log_inc := as.numeric(log(hhinc))]
+
+my_dt <- my_dt[! is.na(USER_Capac)]
+my_dt <- my_dt[(STATE == "Alaska" & hhinc <= 49321) |
+               (STATE == "Hawaii" & hhinc <= 45399) |
+               (hhinc <= 39461), ]
 
 my_dt[, `:=`(log_inc = .center_scale(log_inc),
              pwhite  = .center_scale(pwhite),
@@ -29,13 +41,8 @@ my_dt[, `:=`(log_inc = .center_scale(log_inc),
              punder5 = .center_scale(punder5),
              SNAP    = .center_scale(SNAP),
              WIC     = .center_scale(WIC),
-             poor    = .center_scale(POOR))]
-
-covars <- c("STATE", "PARTY_bin", "poor", "FNS_REG",
-            "SPON_UC.cat", "AGENCY.lab", "ONEAG",
-            "WEBSITE.q", "log_inc",
-            "pwhite", "phs", "punder5",
-            "SNAP", "WIC")
+             poor    = .center_scale(POOR),
+             USER_Capac = .center_scale(USER_Capac))]
 
 states_included <- unique(my_dt[["STATE"]])
 
@@ -47,6 +54,12 @@ my_dt[, FNS_REG := paste0("reg_", FNS_REG)]
 
 my_dt[, AGENCY := gsub(" ", "_", AGENCY)]
 my_dt[, sponsor := gsub(" ", "_", sponsor)]
+
+covars <- c("STATE", "PARTY_bin", "poor", "FNS_REG",
+            "SPON_UC.cat", "AGENCY.lab", "ONEAG",
+            "WEBSITE.q", "log_inc",
+            "pwhite", "phs", "punder5",
+            "SNAP", "WIC")
 
 cat_vars <- c("website", "AGENCY",
               "STATE",
@@ -93,11 +106,6 @@ borders <- my_states |>
 borders <- borders[!st_is_empty(borders)]
 
 border_sp <-  as(borders, "Spatial")
-
-borders_xy <- border_sp |>
-    inla.sp2segment()
-
-borders_xy$loc <- inla.mesh.map(borders_xy$loc)
 
 locs <- my_dt[, .(X, Y)] |>
     as.matrix()
@@ -197,6 +205,7 @@ stk_dat <- inla.stack(data = list(y = my_dt[["USER_CACFP"]]),
                               pwhite = my_dt[["pwhite"]],
                               phs = my_dt[["phs"]],
                               punder5 = my_dt[["punder5"]],
+                              capacity = my_dt[["USER_Capac"]],
                               snap = my_dt[["SNAP"]],
                               wic = my_dt[["WIC"]]
                           )
@@ -216,53 +225,14 @@ f_s <-
 my_model <- inla(f_s, family = "binomial",
                  data = inla.stack.data(stk_dat),
                  verbose = TRUE,
-                 control.compute = list(waic = TRUE,
-                                        cpo = TRUE,
-                                       dic = TRUE),
                  control.predictor =
                      list(A = inla.stack.A(stk_dat),
                           compute = TRUE))
 
-f_null <-
-    sprintf(
-        "y ~ -1 + Intercept + %s",
-        paste(names(stk_dat$effects$data)[-ids_out],
-              collapse = " + ")
-    ) |>
-    as.formula()
-
-my_null <- inla(f_null, family = "binomial",
-                data = inla.stack.data(stk_dat),
-                verbose = TRUE,
-                control.compute = list(waic = TRUE,
-                                       cpo = TRUE,
-                                       dic = TRUE),
-                control.predictor =
-                    list(A = inla.stack.A(stk_dat),
-                         compute = TRUE))
-
-model_comp <-
-    rbind("marginal-log-lik" =
-              c("full" = unname(summary(my_model)$mlik[2, 1]),
-                "no-sp" = unname(summary(my_null)$mlik[2, 1])),
-          "waic" = c("full" = my_model$waic$waic,
-                     "no-sp" = my_null$waic$waic),
-          "dic" = c("full" = my_model$dic$dic,
-                    "no-sp" = my_null$dic$dic))
-
-write.csv(model_comp,
-          file = "../data/results/model-comparison-full.xlsx")
-
-dplyr::as_tibble(cbind(par =
-                           rownames(my_model$summary.fixed),
-                       exp(my_model$summary.fixed)[,
-                                                   c(1, 3, 5)]))
-
 saveRDS(exp(my_model$summary.fixed),
-        file = "../data/results/full-model-no-states.rds")
-
+        file = "../data/results/cap-lowinc-model-no-states.rds")
 saveRDS(exp(my_model$summary.hyperpar),
-        file = "../data/results/spatialpars-model-no-states.rds")
+        file = "../data/results/spatialpars-cap-lowinc-no-states.rds")
 
 fitted <- my_model$summary.linear.predictor
 
@@ -276,4 +246,4 @@ fitted <- fitted[, -c(2:3)]
 rownames(fitted) <- NULL
 
 saveRDS(fitted,
-        file = "../data/results/pred-full-model.rds")
+        file = "../data/results/pred-li-capacity.rds")

@@ -10,7 +10,7 @@ library(sf)
 
 inla.setOption(pardiso.license = "~/sys/licenses/pardiso.lic")
 
-my_dt <- fread("data/center_census_state_OUT_0901.csv")
+my_dt <- fread("../data/center_census_state_OUT_0901.csv")
 my_dt <- my_dt[OUT == 0]
 
 rm_vars <- names(my_dt) |>
@@ -136,5 +136,5 @@ xx$region <- ifelse(xx$region == "intercept", "Overall", gsub("FNS_REG_", "", xx
 rownames(xx) <- NULL
 
 openxlsx::write.xlsx(list("all_estimated_means" = xx),
-                     file = "data/results/model-regions-lowinc.xlsx",
+                     file = "../data/results/model-regions-lowinc.xlsx",
                      overwrite = TRUE)

@@ -1,3 +1,10 @@
+#' ---
+#' output:
+#'   reprex::reprex_document:
+#'     session_info: TRUE
+#'     style: TRUE
+#' ---
+
 library(data.table)
 library(INLA)
 library(sf)
@@ -22,6 +29,10 @@ my_dt[, `:=`(GEOID = gsub("1400000US", "", GEO_ID),
              pwhite = as.numeric(pwhite),
              hhinc = as.numeric(hhinc))]
 my_dt <- my_dt[, log_inc := as.numeric(log(hhinc2))]
+
+my_dt <- my_dt[(STATE == "Alaska" & hhinc <= 49321) |
+               (STATE == "Hawaii" & hhinc <= 45399) |
+               (hhinc <= 39461), ]
 
 my_dt[, `:=`(log_inc = .center_scale(log_inc),
              pwhite  = .center_scale(pwhite),
@@ -52,7 +63,6 @@ regs <- unique(my_dt[["FNS_REG"]])
 my_dt[, (regs) := lapply(regs,
                          function(x) fifelse(FNS_REG == x, 1,
                                              fifelse(FNS_REG == "reg_Midwest", -1, 0)))]
-
 
 stk_dat <- inla.stack(data = list(y = my_dt[["USER_CACFP"]]),
                       A = list(1),
@@ -104,7 +114,7 @@ my_model <- inla(f_s, family = "binomial",
 
 betas <- inla.posterior.sample(1000, my_model)
 
-post <-lapply(betas, function(x) {
+post <- lapply(betas, function(x) {
     t(tail(x[["latent"]], n = 7))
 })
 
@@ -133,5 +143,5 @@ xx$region <- ifelse(xx$region == "intercept", "Overall", gsub("FNS_REG_", "", xx
 rownames(xx) <- NULL
 
 openxlsx::write.xlsx(list("all_estimated_means" = xx),
-                     file = "../data/results/model-regions.xlsx",
+                     file = "../data/results/model-regions-lowinc.xlsx",
                      overwrite = TRUE)

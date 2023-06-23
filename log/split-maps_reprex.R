@@ -1,3 +1,10 @@
+#' ---
+#' output:
+#'   reprex::reprex_document:
+#'     session_info: TRUE
+#'     style: TRUE
+#' ---
+
 library(dplyr)
 library(sf)
 library(ggplot2)
