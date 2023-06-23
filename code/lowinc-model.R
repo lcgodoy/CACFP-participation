@@ -10,7 +10,7 @@ library(sf)
 
 inla.setOption(pardiso.license = "~/sys/licenses/pardiso.lic")
 
-my_dt <- fread("data/center_census_state_OUT_0901.csv")
+my_dt <- fread("../data/center_census_state_OUT_0901.csv")
 my_dt <- my_dt[OUT == 0]
 
 rm_vars <- names(my_dt) |>
@@ -246,12 +246,12 @@ model_comp <-
                     "no-sp" = my_null$dic$dic))
 
 write.csv(model_comp,
-          file = "data/results/model-comparison-lowinc.csv")
+          file = "../data/results/model-comparison-lowinc.csv")
 
 saveRDS(exp(my_model$summary.fixed),
-        file = "data/results/lowinc-model-no-states.rds")
+        file = "../data/results/lowinc-model-no-states.rds")
 saveRDS(exp(my_model$summary.hyperpar),
-        file = "data/results/spatialpars-lowinc-no-states.rds")
+        file = "../data/results/spatialpars-lowinc-no-states.rds")
 
 fitted <- my_model$summary.linear.predictor
 
@@ -265,4 +265,4 @@ fitted <- fitted[, -c(2:3)]
 rownames(fitted) <- NULL
 
 saveRDS(fitted,
-        file = "data/results/pred-lowinc.rds")
+        file = "../data/results/pred-lowinc.rds")
