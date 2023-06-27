@@ -14,6 +14,11 @@ library(sf)
 .center_scale <- function(x)
     as.numeric(scale(x))
 
+int_ninter <- function(c1, c2) {
+    as.numeric(c1[2] < c2[1]) +
+        as.numeric(c1[1] > c2[2])
+}
+
 inla.setOption(pardiso.license = "~/sys/licenses/pardiso.lic")
 
 my_dt <- fread("../data/center_census_state_OUT_0901.csv")

@@ -17,6 +17,11 @@ library(sf)
 .center_scale <- function(x)
     as.numeric(scale(x))
 
+int_ninter <- function(c1, c2) {
+    as.numeric(c1[2] < c2[1]) +
+        as.numeric(c1[1] > c2[2])
+}
+
 inla.setOption(pardiso.license = "~/sys/licenses/pardiso.lic")
 
 my_dt <- fread("../data/center_census_state_OUT_0901.csv")
@@ -142,7 +147,6 @@ my_tbl <- cbind(my_tbl,
             sig = apply(my_tbl[, 2:3],
                         1,
                         \(x) int_ninter(my_tbl[1, 2:3], x)))
-#> Error in int_ninter(my_tbl[1, 2:3], x): could not find function "int_ninter"
 
 my_tbl <- cbind.data.frame(region = rownames(my_tbl), as.data.frame(my_tbl))
 
@@ -155,12 +159,19 @@ rownames(my_tbl) <- NULL
 
 colnames(my_tbl) <- c("Region", "Est. part. rate",
                       "CI-Lower", "CI-Upper", "sig")
-#> Error in names(x) <- value: 'names' attribute [5] must be the same length as the vector [4]
 
 ## Table 1 - part 2
 rbind(my_tbl[-1, c(1, 5)][order(my_tbl$Region[-1]), ],
       my_tbl[1, c(1, 5)])
-#> Error in `[.data.frame`(my_tbl, -1, c(1, 5)): undefined columns selected
+#>        Region sig
+#> 6 Midatlantic   1
+#> 2     Midwest   1
+#> 5    Mountain   1
+#> 4   Northeast   1
+#> 7   Southeast   1
+#> 8   Southwest   1
+#> 3        West   1
+#> 1     Overall   0
 ```
 
 <sup>Created on 2023-06-27 with [reprex v2.0.2](https://reprex.tidyverse.org)</sup>
