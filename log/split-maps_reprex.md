@@ -205,19 +205,17 @@ ggplot(data = mutate(full, dataset = "(A)")) +
   )
 ```
 
-![](https://i.imgur.com/CdJlBQn.png)<!-- -->
+![](https://i.imgur.com/wWKHiYo.png)<!-- -->
 
 ``` r
 ggsave("img/map-observed-full.eps",
   dpi = 300,
   width = 12, height = 12
 )
-#> Error in grDevices::postscript(file = filename, ..., onefile = FALSE, : cannot open file 'img/map-observed-full.eps'
 ggsave("img/map-observed-full.pdf",
   dpi = 300,
   width = 12, height = 12
 )
-#> Error in grDevices::pdf(file = filename, ..., version = version): cannot open file 'img/map-observed-full.pdf'
 ggsave("img/map-observed-full.png",
   dpi = 300,
   width = 12, height = 12
@@ -291,7 +289,7 @@ ggplot(data = mutate(full, dataset = "(B)")) +
   theme(axis.text = element_blank())
 ```
 
-![](https://i.imgur.com/0G1mrq3.png)<!-- -->
+![](https://i.imgur.com/Izdl53O.png)<!-- -->
 
 ``` r
 
@@ -376,7 +374,7 @@ ggplot(data = mutate(lowinc, dataset = "(C)")) +
   theme(axis.text = element_blank())
 ```
 
-![](https://i.imgur.com/ZVCI6pw.png)<!-- -->
+![](https://i.imgur.com/JGrnzfY.png)<!-- -->
 
 ``` r
 
@@ -461,7 +459,7 @@ ggplot(data = mutate(lowinc, dataset = "(D)")) +
   theme(axis.text = element_blank())
 ```
 
-![](https://i.imgur.com/QTXNs0b.png)<!-- -->
+![](https://i.imgur.com/Sn2slon.png)<!-- -->
 
 ``` r
 
@@ -483,7 +481,7 @@ ggsave("../img/map-predicted-lowinc.png",
 )
 ```
 
-<sup>Created on 2023-06-23 with [reprex v2.0.2](https://reprex.tidyverse.org)</sup>
+<sup>Created on 2023-06-27 with [reprex v2.0.2](https://reprex.tidyverse.org)</sup>
 
 <details style="margin-bottom:10px;">
 <summary>
@@ -502,7 +500,7 @@ sessioninfo::session_info()
 #>  collate  en_US.UTF-8
 #>  ctype    en_US.UTF-8
 #>  tz       America/Sao_Paulo
-#>  date     2023-06-23
+#>  date     2023-06-27
 #>  pandoc   3.1.2 @ /opt/homebrew/bin/ (via rmarkdown)
 #> 
 #> ─ Packages ───────────────────────────────────────────────────────────────────

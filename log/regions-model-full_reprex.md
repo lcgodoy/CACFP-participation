@@ -148,6 +148,7 @@ colnames(post)[1] <- "FNS_REG_Midwest:1"
 
 post <- cbind(intercept, post)
 
+## bonferroni correction
 sig_level <- 1 - (.05 / NCOL(post))
 
 post <- coda::as.mcmc(post)
@@ -163,13 +164,14 @@ xx$region <- ifelse(xx$region == "intercept", "Overall", gsub("FNS_REG_", "", xx
 
 rownames(xx) <- NULL
 
-openxlsx::write.xlsx(list("all_estimated_means" = xx),
-  file = "../data/results/model-regions.xlsx",
-  overwrite = TRUE
-)
+colnames(xx) <- c("Region", "Est. part. rate", "CI-Lower", "CI-Upper")
+
+## Table 1 - part 1
+print(xx, n = Inf)
+#> Error in print.default(m, ..., quote = quote, right = right, max = max): invalid 'na.print' specification
 ```
 
-<sup>Created on 2023-06-23 with [reprex v2.0.2](https://reprex.tidyverse.org)</sup>
+<sup>Created on 2023-06-27 with [reprex v2.0.2](https://reprex.tidyverse.org)</sup>
 
 <details style="margin-bottom:10px;">
 <summary>
@@ -188,7 +190,7 @@ sessioninfo::session_info()
 #>  collate  en_US.UTF-8
 #>  ctype    en_US.UTF-8
 #>  tz       America/Sao_Paulo
-#>  date     2023-06-23
+#>  date     2023-06-27
 #>  pandoc   3.1.2 @ /opt/homebrew/bin/ (via rmarkdown)
 #> 
 #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -222,7 +224,6 @@ sessioninfo::session_info()
 #>  MatrixModels   0.5-1      2022-09-11 [1] CRAN (R 4.2.0)
 #>  mnormt         2.1.1      2022-09-26 [1] CRAN (R 4.2.0)
 #>  numDeriv       2016.8-1.1 2019-06-06 [1] CRAN (R 4.2.0)
-#>  openxlsx       4.2.5.2    2023-02-06 [1] CRAN (R 4.2.0)
 #>  pillar         1.8.1      2022-08-19 [1] CRAN (R 4.2.0)
 #>  pkgconfig      2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
 #>  proxy          0.4-27     2022-06-09 [1] CRAN (R 4.2.0)
@@ -240,7 +241,6 @@ sessioninfo::session_info()
 #>  sf           * 1.0-12     2023-03-19 [1] CRAN (R 4.2.0)
 #>  sn             2.1.1      2023-04-04 [1] CRAN (R 4.2.0)
 #>  sp           * 1.6-0      2023-01-19 [1] CRAN (R 4.2.0)
-#>  stringi        1.7.12     2023-01-11 [1] CRAN (R 4.2.0)
 #>  styler         1.9.1      2023-03-04 [1] CRAN (R 4.2.0)
 #>  tibble         3.1.8      2022-07-22 [1] CRAN (R 4.2.0)
 #>  tidyselect     1.2.0      2022-10-10 [1] CRAN (R 4.2.0)
@@ -250,7 +250,6 @@ sessioninfo::session_info()
 #>  withr          2.5.0      2022-03-03 [1] CRAN (R 4.2.0)
 #>  xfun           0.37       2023-01-31 [1] CRAN (R 4.2.0)
 #>  yaml           2.3.7      2023-01-23 [1] CRAN (R 4.2.0)
-#>  zip            2.2.2      2022-10-26 [1] CRAN (R 4.2.0)
 #> 
 #>  [1] /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/library
 #> 

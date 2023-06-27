@@ -257,19 +257,15 @@ model_comp <-
           "dic" = c("full" = my_model$dic$dic,
                     "no-sp" = my_null$dic$dic))
 
-write.csv(model_comp,
-          file = "../data/results/model-comparison-full.xlsx")
+out <-
+    dplyr::as_tibble(cbind(par =
+                               rownames(my_model$summary.fixed),
+                           exp(my_model$summary.fixed)[,
+                                                       c(1, 3, 5)]))
 
-dplyr::as_tibble(cbind(par =
-                           rownames(my_model$summary.fixed),
-                       exp(my_model$summary.fixed)[,
-                                                   c(1, 3, 5)]))
+colnames(out) <- c("Variable", "OR", "CI-lower", "CI-upper")
 
-saveRDS(exp(my_model$summary.fixed),
-        file = "../data/results/full-model-no-states.rds")
-
-saveRDS(exp(my_model$summary.hyperpar),
-        file = "../data/results/spatialpars-model-no-states.rds")
+print(out, n = Inf)
 
 fitted <- my_model$summary.linear.predictor
 
@@ -282,5 +278,4 @@ fitted <- transform(fitted,
 fitted <- fitted[, -c(2:3)]
 rownames(fitted) <- NULL
 
-saveRDS(fitted,
-        file = "../data/results/pred-full-model.rds")
+head(fitted)

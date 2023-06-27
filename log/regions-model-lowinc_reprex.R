@@ -142,6 +142,7 @@ xx$region <- ifelse(xx$region == "intercept", "Overall", gsub("FNS_REG_", "", xx
 
 rownames(xx) <- NULL
 
-openxlsx::write.xlsx(list("all_estimated_means" = xx),
-                     file = "../data/results/model-regions-lowinc.xlsx",
-                     overwrite = TRUE)
+colnames(xx) <- c("Region", "Est. part. rate", "CI-Lower", "CI-Upper")
+
+## Table 1 - part 2
+print(xx, n = Inf)

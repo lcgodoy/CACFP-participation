@@ -245,13 +245,16 @@ model_comp <-
           "dic" = c("full" = my_model$dic$dic,
                     "no-sp" = my_null$dic$dic))
 
-write.csv(model_comp,
-          file = "../data/results/model-comparison-lowinc.csv")
+out <-
+    dplyr::as_tibble(cbind(par =
+                               rownames(my_model$summary.fixed),
+                           exp(my_model$summary.fixed)[,
+                                                       c(1, 3, 5)]))
 
-saveRDS(exp(my_model$summary.fixed),
-        file = "../data/results/lowinc-model-no-states.rds")
-saveRDS(exp(my_model$summary.hyperpar),
-        file = "../data/results/spatialpars-lowinc-no-states.rds")
+colnames(out) <- c("Variable", "OR", "CI - lower", "CI - upper")
+
+## Table 2
+print(out, n = Inf)
 
 fitted <- my_model$summary.linear.predictor
 
@@ -264,5 +267,4 @@ fitted <- transform(fitted,
 fitted <- fitted[, -c(2:3)]
 rownames(fitted) <- NULL
 
-saveRDS(fitted,
-        file = "../data/results/pred-lowinc.rds")
+head(fitted)

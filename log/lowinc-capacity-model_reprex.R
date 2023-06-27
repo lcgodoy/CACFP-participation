@@ -229,10 +229,15 @@ my_model <- inla(f_s, family = "binomial",
                      list(A = inla.stack.A(stk_dat),
                           compute = TRUE))
 
-saveRDS(exp(my_model$summary.fixed),
-        file = "../data/results/cap-lowinc-model-no-states.rds")
-saveRDS(exp(my_model$summary.hyperpar),
-        file = "../data/results/spatialpars-cap-lowinc-no-states.rds")
+out <-
+    dplyr::as_tibble(cbind(par =
+                               rownames(my_model$summary.fixed),
+                           exp(my_model$summary.fixed)[,
+                                                       c(1, 3, 5)]))
+
+colnames(out) <- c("Variable", "OR", "CI - lower", "CI - upper")
+
+print(out, n = Inf)
 
 fitted <- my_model$summary.linear.predictor
 
@@ -245,5 +250,4 @@ fitted <- transform(fitted,
 fitted <- fitted[, -c(2:3)]
 rownames(fitted) <- NULL
 
-saveRDS(fitted,
-        file = "../data/results/pred-li-capacity.rds")
+head(fitted)

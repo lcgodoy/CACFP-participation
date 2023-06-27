@@ -124,6 +124,7 @@ colnames(post)[1] <- "FNS_REG_Midwest:1"
 
 post <- cbind(intercept, post)
 
+## bonferroni correction
 sig_level <- 1 - (.05 / NCOL(post))
 
 post <- coda::as.mcmc(post)
@@ -139,6 +140,7 @@ xx$region <- ifelse(xx$region == "intercept", "Overall", gsub("FNS_REG_", "", xx
 
 rownames(xx) <- NULL
 
-openxlsx::write.xlsx(list("all_estimated_means" = xx),
-                     file = "../data/results/model-regions.xlsx",
-                     overwrite = TRUE)
+colnames(xx) <- c("Region", "Est. part. rate", "CI-Lower", "CI-Upper")
+
+## Table 1 - part 1
+print(xx, n = Inf)
