@@ -2,7 +2,6 @@
 #' output:
 #'   reprex::reprex_document:
 #'     session_info: TRUE
-#'     style: TRUE
 #' ---
 
 library(data.table)
@@ -109,7 +108,7 @@ my_model <- inla(f_s, family = "binomial",
                  control.predictor =
                      list(A = inla.stack.A(stk_dat)))
 
-betas <- inla.posterior.sample(1000, my_model)
+betas <- inla.posterior.sample(5000, my_model)
 
 post <-lapply(betas, function(x) {
     t(tail(x[["latent"]], n = 7))
@@ -129,18 +128,29 @@ sig_level <- 1 - (.05 / NCOL(post))
 
 post <- coda::as.mcmc(post)
 
-xx <- cbind(apply(post, 2, mean), coda::HPDinterval(post, prob = sig_level))
-colnames(xx)[1] <- "post_mean"
+my_tbl <- cbind(apply(post, 2, mean),
+            coda::HPDinterval(post, prob = sig_level))
+colnames(my_tbl)[1] <- "post_mean"
 
-xx <- exp(xx)
+my_tbl <- plogis(my_tbl)
 
-xx <- cbind.data.frame(region = rownames(xx), as.data.frame(xx))
+my_tbl <- cbind(my_tbl,
+            sig = apply(my_tbl[, 2:3],
+                        1,
+                        \(x) int_ninter(my_tbl[1, 2:3], x)))
 
-xx$region <- ifelse(xx$region == "intercept", "Overall", gsub("FNS_REG_", "", xx$region))
+my_tbl <- cbind.data.frame(region = rownames(my_tbl), as.data.frame(my_tbl))
 
-rownames(xx) <- NULL
+my_tbl$region <- ifelse(my_tbl$region == "intercept", "Overall",
+                    gsub("FNS_REG_", "", my_tbl$region))
 
-colnames(xx) <- c("Region", "Est. part. rate", "CI-Lower", "CI-Upper")
+my_tbl$region <- gsub(":1", "", my_tbl$region)
 
-## Table 1 - part 1
-print(xx, n = Inf)
+rownames(my_tbl) <- NULL
+
+colnames(my_tbl) <- c("Region", "Est. part. rate",
+                      "CI-Lower", "CI-Upper", "sig")
+
+## Table 1 - part 2
+rbind(my_tbl[-1, c(1, 5)][order(my_tbl$Region[-1]), ],
+      my_tbl[1, c(1, 5)])
